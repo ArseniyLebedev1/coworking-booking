@@ -1080,6 +1080,52 @@ paths:
                   type: string
                   nullable: true
 
+                  
+    delete:
+      tags:
+        - Rooms
+      summary: Удаление помещения
+      description: |
+        Удаляет помещение по его UUID.
+        Доступ разрешён только администратору.
+        Удаление запрещено, если у помещения
+        существуют бронирования.
+      operationId: deleteRoom
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          description: UUID удаляемого помещения
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '204':
+          description: Помещение успешно удалено
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав администратора
+
+        '404':
+          description: Помещение не найдено
+
+        '409':
+          description: |
+            Удаление невозможно, поскольку
+            у помещения существуют бронирования.
+
+        '422':
+          description: Некорректный UUID помещения
+
+
       responses:
         '200':
           description: Помещение успешно обновлено
