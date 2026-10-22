@@ -1426,6 +1426,93 @@ paths:
           description: Помещение не найдено
         '422':
           description: Ошибка валидации данных
+
+          
+  /bookings:
+    post:
+      tags:
+        - Bookings
+      summary: Создание бронирования
+      description: |
+        Создаёт бронирование помещения.
+        Доступно авторизованному сотруднику
+        или администратору.
+        Сервер запрещает пересечение активных
+        бронирований одного помещения.
+      operationId: createBooking
+
+      security:
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - room_id
+                - start_time
+                - end_time
+              additionalProperties: false
+              properties:
+                room_id:
+                  type: string
+                  format: uuid
+                start_time:
+                  type: string
+                  format: date-time
+                end_time:
+                  type: string
+                  format: date-time
+
+      responses:
+        '201':
+          description: Бронирование создано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  room_id:
+                    type: string
+                    format: uuid
+                  user_id:
+                    type: string
+                    format: uuid
+                  start_time:
+                    type: string
+                    format: date-time
+                  end_time:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: confirmed
+
+        '400':
+          description: Некорректный временной интервал
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав
+
+        '404':
+          description: Помещение не найдено
+
+        '409':
+          description: |
+            Помещение недоступно или уже
+            забронировано на указанное время.
+
+        '422':
+          description: Ошибка валидации данных
+
 components:
   securitySchemes:
     BearerAuth:
