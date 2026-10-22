@@ -735,7 +735,7 @@ paths:
                   example: Современный коворкинг
       responses:
         '201':
-          description: Коворкинг успешно создано
+          description: Коворкинг успешно создан
           content:
             application/json:
               schema:
@@ -1149,56 +1149,6 @@ paths:
           description: Ошибка валидации данных
         '404':
           description: Указанный коворкинг не найден
-      parameters:
-      - name: page
-        in: query
-        schema:
-          type: integer
-          minimum: 1
-          default: 1
-      - name: limit
-        in: query
-        schema:
-          type: integer
-          minimum: 1
-          maximum: 100
-          default: 10
-      - name: search
-        in: query
-        description: Поиск по названию помещения
-        schema:
-          type: string
-      - name: location_id
-        in: query
-        description: UUID коворкинга
-        schema:
-          type: string
-          format: uuid
-      - name: type
-        in: query
-        description: Тип помещения
-        schema:
-          type: string
-          enum:
-          - meeting_room
-          - workspace
-      - name: min_capacity
-        in: query
-        description: Минимальная вместимость
-        schema:
-          type: integer
-          minimum: 1
-      - name: sort
-        in: query
-        description: Сортировка помещений
-        schema:
-          type: string
-          enum:
-          - name_asc
-          - name_desc
-          - capacity_asc
-          - capacity_desc
-          default: name_asc
   /rooms/{room_id}:
     get:
       tags:
@@ -1388,62 +1338,37 @@ paths:
           type: string
           format: uuid
       responses:
-        '200':
-          description: Помещение успешно обновлено
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  location_id:
-                    type: string
-                    format: uuid
-                  name:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-                  type:
-                    type: string
-                    enum:
-                    - meeting_room
-                    - workspace
-                  capacity:
-                    type: integer
-                  is_active:
-                    type: boolean
-                  image_url:
-                    type: string
-                    nullable: true
+        '204':
+          description: Помещение успешно удалено
         '401':
           description: Пользователь не авторизован
         '403':
           description: Недостаточно прав администратора
         '404':
           description: Помещение не найдено
+        '409':
+          description: Удаление невозможно, поскольку у помещения существуют бронирования
         '422':
           description: Ошибка валидации данных
-
-          
   /bookings:
     post:
       tags:
-        - Bookings
+      - Bookings
       summary: Создание бронирования
-      description: |
-        Создаёт бронирование помещения.
+      description: 'Создаёт бронирование помещения.
+
         Доступно авторизованному сотруднику
+
         или администратору.
+
         Сервер запрещает пересечение активных
+
         бронирований одного помещения.
+
+        '
       operationId: createBooking
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -1451,9 +1376,9 @@ paths:
             schema:
               type: object
               required:
-                - room_id
-                - start_time
-                - end_time
+              - room_id
+              - start_time
+              - end_time
               additionalProperties: false
               properties:
                 room_id:
@@ -1465,7 +1390,6 @@ paths:
                 end_time:
                   type: string
                   format: date-time
-
       responses:
         '201':
           description: Бронирование создано
@@ -1492,81 +1416,73 @@ paths:
                   status:
                     type: string
                     example: confirmed
-
         '400':
           description: Некорректный временной интервал
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Недостаточно прав
-
         '404':
           description: Помещение не найдено
-
         '409':
-          description: |
-            Помещение недоступно или уже
+          description: 'Помещение недоступно или уже
+
             забронировано на указанное время.
 
+            '
         '422':
           description: Ошибка валидации данных
-
     get:
       tags:
-        - Bookings
+      - Bookings
       summary: Получение списка бронирований
-      description: |
-        Сотрудник получает только свои бронирования.
+      description: 'Сотрудник получает только свои бронирования.
+
         Администратор получает все бронирования.
+
         Фильтрация, сортировка и пагинация
+
         выполняются на сервере.
+
+        '
       operationId: getBookings
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-
-        - name: status
-          in: query
-          schema:
-            type: string
-            enum:
-              - confirmed
-              - cancelled
-
-        - name: room_id
-          in: query
-          schema:
-            type: string
-            format: uuid
-
-        - name: sort
-          in: query
-          schema:
-            type: string
-            enum:
-              - start_time_asc
-              - start_time_desc
-              - newest
-            default: start_time_desc
-
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - confirmed
+          - cancelled
+      - name: room_id
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: sort
+        in: query
+        schema:
+          type: string
+          enum:
+          - start_time_asc
+          - start_time_desc
+          - newest
+          default: start_time_desc
       responses:
         '200':
           description: Список бронирований получен
@@ -1575,10 +1491,10 @@ paths:
               schema:
                 type: object
                 required:
-                  - items
-                  - total
-                  - page
-                  - limit
+                - items
+                - total
+                - page
+                - limit
                 properties:
                   items:
                     type: array
@@ -1603,24 +1519,20 @@ paths:
                         status:
                           type: string
                           enum:
-                            - confirmed
-                            - cancelled
+                          - confirmed
+                          - cancelled
                   total:
                     type: integer
                   page:
                     type: integer
                   limit:
                     type: integer
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Недостаточно прав доступа
-
         '422':
           description: Ошибка валидации параметров
-
 components:
   securitySchemes:
     BearerAuth:
