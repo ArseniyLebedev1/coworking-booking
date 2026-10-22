@@ -712,6 +712,82 @@ paths:
               - newest
             default: name_asc
 
+        
+    post:
+      tags:
+        - Locations
+      summary: Создание коворкинга
+      description: |
+        Создаёт новый коворкинг.
+        Доступ разрешён только администратору.
+      operationId: createLocation
+
+      security:
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - address
+                - city
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: Бизнес-центр
+                address:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: ул. Ленина, 10
+                city:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  example: Москва
+                description:
+                  type: string
+                  nullable: true
+                  example: Современный коворкинг
+
+      responses:
+        '201':
+          description: Коворкинг успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  city:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав администратора
+
+        '422':
+          description: Ошибка валидации данных
+
+
       responses:
         '200':
           description: Список коворкингов получен
