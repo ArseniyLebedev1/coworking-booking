@@ -1513,6 +1513,114 @@ paths:
         '422':
           description: Ошибка валидации данных
 
+    get:
+      tags:
+        - Bookings
+      summary: Получение списка бронирований
+      description: |
+        Сотрудник получает только свои бронирования.
+        Администратор получает все бронирования.
+        Фильтрация, сортировка и пагинация
+        выполняются на сервере.
+      operationId: getBookings
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - confirmed
+              - cancelled
+
+        - name: room_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - start_time_asc
+              - start_time_desc
+              - newest
+            default: start_time_desc
+
+      responses:
+        '200':
+          description: Список бронирований получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total
+                  - page
+                  - limit
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        room_id:
+                          type: string
+                          format: uuid
+                        start_time:
+                          type: string
+                          format: date-time
+                        end_time:
+                          type: string
+                          format: date-time
+                        status:
+                          type: string
+                          enum:
+                            - confirmed
+                            - cancelled
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав доступа
+
+        '422':
+          description: Ошибка валидации параметров
+
 components:
   securitySchemes:
     BearerAuth:
