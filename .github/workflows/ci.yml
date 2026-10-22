@@ -1,0 +1,41 @@
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    name: Validate project configuration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install validation tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml openapi-spec-validator
+
+      - name: Validate OpenAPI specification
+        run: |
+          python -m openapi_spec_validator docs/openapi.yaml
+
+      - name: Validate Docker Compose
+        run: |
+          docker compose -f docker-compose.yml config --quiet
+
+      - name: Check Python syntax
+        run: |
+          if [ -d backend ]; then
+            python -m compileall -q backend
+          else
+            echo "Backend directory not created yet"
+          fi
