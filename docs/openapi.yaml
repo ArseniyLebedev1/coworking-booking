@@ -1355,17 +1355,9 @@ paths:
       tags:
       - Bookings
       summary: Создание бронирования
-      description: 'Создаёт бронирование помещения.
-
-        Доступно авторизованному сотруднику
-
-        или администратору.
-
-        Сервер запрещает пересечение активных
-
-        бронирований одного помещения.
-
-        '
+      description: Создаёт бронирование от имени текущего пользователя. Требует роли employee или admin. Сервер проверяет
+        start_time < end_time, активность помещения и отсутствие пересекающихся подтверждённых бронирований (в том числе при
+        конкурентных запросах).
       operationId: createBooking
       security:
       - BearerAuth: []
@@ -1416,6 +1408,13 @@ paths:
                   status:
                     type: string
                     example: confirmed
+                required:
+                - id
+                - room_id
+                - user_id
+                - start_time
+                - end_time
+                - status
         '400':
           description: Некорректный временной интервал
         '401':
@@ -1436,15 +1435,8 @@ paths:
       tags:
       - Bookings
       summary: Получение списка бронирований
-      description: 'Сотрудник получает только свои бронирования.
-
-        Администратор получает все бронирования.
-
-        Фильтрация, сортировка и пагинация
-
-        выполняются на сервере.
-
-        '
+      description: Сотрудник видит только свои бронирования, администратор — все. Пагинация, фильтры и сортировка выполняются
+        на сервере.
       operationId: getBookings
       security:
       - BearerAuth: []
@@ -1533,46 +1525,36 @@ paths:
           description: Недостаточно прав доступа
         '422':
           description: Ошибка валидации параметров
-
-          
   /bookings/{booking_id}:
     get:
       tags:
-        - Bookings
-      summary: Получение информации о бронировании
-      description: |
-        Возвращает информацию о бронировании.
-        Сотрудник может просматривать только
-        собственные бронирования.
-        Администратор может просматривать все.
+      - Bookings
+      summary: Получение бронирования по UUID
+      description: Сотрудник видит только собственное бронирование, администратор — любое.
       operationId: getBookingById
-
-      security:
-        - BearerAuth: []
-
       parameters:
-        - name: booking_id
-          in: path
-          required: true
-          description: UUID бронирования
-          schema:
-            type: string
-            format: uuid
-
+      - name: booking_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      security: &id001
+      - BearerAuth: []
       responses:
         '200':
           description: Бронирование найдено
           content:
             application/json:
-              schema:
+              schema: &id002
                 type: object
                 required:
-                  - id
-                  - user_id
-                  - room_id
-                  - start_time
-                  - end_time
-                  - status
+                - id
+                - user_id
+                - room_id
+                - start_time
+                - end_time
+                - status
                 properties:
                   id:
                     type: string
@@ -1592,121 +1574,76 @@ paths:
                   status:
                     type: string
                     enum:
-                      - confirmed
-                      - cancelled
+                    - confirmed
+                    - cancelled
                   created_at:
                     type: string
                     format: date-time
                   updated_at:
                     type: string
                     format: date-time
-
         '401':
-          description: Пользователь не авторизован
-
+          description: Требуется авторизация
         '403':
-          description: Недостаточно прав доступа
-
+          description: Недостаточно прав
         '404':
           description: Бронирование не найдено
-
         '422':
-          description: Некорректный UUID бронирования
-
-          
+          description: Некорректный UUID
   /bookings/{booking_id}/cancel:
     patch:
       tags:
-        - Bookings
+      - Bookings
       summary: Отмена бронирования
-      description: |
-        Отменяет активное бронирование.
-        Сотрудник может отменять только свои
-        бронирования, администратор — любые.
-        После отмены интервал освобождается.
+      description: Сотрудник отменяет своё подтверждённое бронирование, администратор — любое. Запись сохраняется со статусом
+        cancelled, интервал освобождается.
       operationId: cancelBooking
-
-      security:
-        - BearerAuth: []
-
       parameters:
-        - name: booking_id
-          in: path
-          required: true
-          description: UUID бронирования
-          schema:
-            type: string
-            format: uuid
-
+      - name: booking_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      security: *id001
       responses:
         '200':
-          description: Бронирование успешно отменено
+          description: Бронирование отменено
           content:
             application/json:
-              schema:
-                type: object
-                required:
-                  - id
-                  - status
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                    enum:
-                      - cancelled
-                  updated_at:
-                    type: string
-                    format: date-time
-
+              schema: *id002
         '401':
-          description: Пользователь не авторизован
-
+          description: Требуется авторизация
         '403':
-          description: Недостаточно прав доступа
-
+          description: Недостаточно прав
         '404':
           description: Бронирование не найдено
-
         '409':
           description: Бронирование уже отменено
-
         '422':
-          description: Некорректный UUID бронирования
-
-          
+          description: Некорректный UUID
   /rooms/{room_id}/availability:
     get:
       tags:
-        - Rooms
-      summary: Получение занятых временных интервалов
-      description: |
-        Возвращает занятые интервалы помещения
-        за указанную дату.
-        Учитываются только подтверждённые
-        бронирования со статусом confirmed.
-        Доступен без авторизации.
+      - Rooms
+      summary: Занятые интервалы помещения на дату
+      description: Возвращает интервалы подтверждённых бронирований, пересекающиеся с указанной календарной датой. Дата трактуется
+        в часовом поясе коворкинга; в MVP принимается Europe/Moscow.
       operationId: getRoomAvailability
-
       parameters:
-        - name: room_id
-          in: path
-          required: true
-          description: UUID помещения
-          schema:
-            type: string
-            format: uuid
-
-        - name: date
-          in: query
-          required: true
-          description: Дата проверки доступности
-          schema:
-            type: string
-            format: date
-            example: '2026-10-23'
-
+      - name: room_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+        description: Дата в формате YYYY-MM-DD
       responses:
         '200':
           description: Занятые интервалы получены
@@ -1715,9 +1652,9 @@ paths:
               schema:
                 type: object
                 required:
-                  - room_id
-                  - date
-                  - occupied_slots
+                - room_id
+                - date
+                - occupied_slots
                 properties:
                   room_id:
                     type: string
@@ -1730,8 +1667,8 @@ paths:
                     items:
                       type: object
                       required:
-                        - start_time
-                        - end_time
+                      - start_time
+                      - end_time
                       properties:
                         start_time:
                           type: string
@@ -1739,15 +1676,330 @@ paths:
                         end_time:
                           type: string
                           format: date-time
-
         '404':
           description: Помещение не найдено
-
         '422':
-          description: Некорректная дата или UUID
-
-
-
+          description: Ошибка в дате или UUID
+  /amenities:
+    get:
+      tags:
+      - Amenities
+      summary: Список доступных удобств
+      description: 'Публичный справочник удобств: проектор, доска, Wi-Fi и т. д.'
+      operationId: getAmenities
+      responses:
+        '200':
+          description: Список удобств
+          content:
+            application/json:
+              schema:
+                type: array
+                items: &id003
+                  type: object
+                  required:
+                  - id
+                  - name
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 100
+                    description:
+                      type: string
+                      nullable: true
+    post:
+      tags:
+      - Amenities
+      summary: Создание удобства
+      description: Доступно только администратору.
+      operationId: createAmenity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  nullable: true
+      security: *id001
+      responses:
+        '201':
+          description: Удобство создано
+          content:
+            application/json:
+              schema: *id003
+        '401':
+          description: Требуется авторизация
+        '403':
+          description: Только администратор
+        '409':
+          description: Удобство с таким названием уже существует
+        '422':
+          description: Ошибка валидации
+  /amenities/{amenity_id}:
+    get:
+      tags:
+      - Amenities
+      summary: Получение удобства по UUID
+      description: Возвращает удобство из справочника.
+      operationId: getAmenityById
+      parameters:
+      - name: amenity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Удобство найдено
+          content:
+            application/json:
+              schema: *id003
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Некорректный UUID
+    patch:
+      tags:
+      - Amenities
+      summary: Изменение удобства
+      description: Доступно только администратору.
+      operationId: updateAmenity
+      parameters:
+      - name: amenity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  nullable: true
+              minProperties: 1
+              additionalProperties: false
+      security: *id001
+      responses:
+        '200':
+          description: Удобство обновлено
+          content:
+            application/json:
+              schema: *id003
+        '401':
+          description: Требуется авторизация
+        '403':
+          description: Только администратор
+        '404':
+          description: Удобство не найдено
+        '409':
+          description: Название занято
+        '422':
+          description: Ошибка валидации
+    delete:
+      tags:
+      - Amenities
+      summary: Удаление удобства
+      description: Удаляет удобство и его связи с помещениями. Только администратор.
+      operationId: deleteAmenity
+      parameters:
+      - name: amenity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      security: *id001
+      responses:
+        '204':
+          description: Удобство удалено
+        '401':
+          description: Требуется авторизация
+        '403':
+          description: Только администратор
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Некорректный UUID
+  /rooms/{room_id}/amenities:
+    get:
+      tags:
+      - Rooms
+      summary: Удобства помещения
+      description: Публичный список удобств выбранного помещения.
+      operationId: getRoomAmenities
+      parameters:
+      - name: room_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Удобства помещения
+          content:
+            application/json:
+              schema:
+                type: array
+                items: *id003
+        '404':
+          description: Помещение не найдено
+        '422':
+          description: Некорректный UUID
+    put:
+      tags:
+      - Rooms
+      summary: Установка списка удобств помещения
+      description: Полностью заменяет список удобств помещения. Только администратор.
+      operationId: setRoomAmenities
+      parameters:
+      - name: room_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - amenity_ids
+              properties:
+                amenity_ids:
+                  type: array
+                  uniqueItems: true
+                  items:
+                    type: string
+                    format: uuid
+      security: *id001
+      responses:
+        '200':
+          description: Удобства обновлены
+          content:
+            application/json:
+              schema:
+                type: array
+                items: *id003
+        '401':
+          description: Требуется авторизация
+        '403':
+          description: Только администратор
+        '404':
+          description: Помещение или удобство не найдено
+        '422':
+          description: Ошибка валидации
+  /rooms/{room_id}/image:
+    post:
+      tags:
+      - Rooms
+      summary: Загрузка изображения помещения
+      description: Загружает JPG, PNG или WebP для помещения (не более 5 МБ). Только администратор.
+      operationId: uploadRoomImage
+      parameters:
+      - name: room_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      security: *id001
+      responses:
+        '200':
+          description: Изображение загружено
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - image_url
+                properties:
+                  image_url:
+                    type: string
+                    format: uri
+        '400':
+          description: Неподдерживаемый формат или превышен лимит размера
+        '401':
+          description: Требуется авторизация
+        '403':
+          description: Только администратор
+        '404':
+          description: Помещение не найдено
+        '422':
+          description: Некорректный файл или UUID
+  /admin/dashboard:
+    get:
+      tags:
+      - Users
+      summary: Сводка администратора
+      description: Количество помещений, пользователей и бронирований в системе. Только администратор.
+      operationId: getAdminDashboard
+      security: *id001
+      responses:
+        '200':
+          description: Сводка получена
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - users_total
+                - rooms_total
+                - active_bookings
+                - cancelled_bookings
+                properties:
+                  users_total:
+                    type: integer
+                    minimum: 0
+                  rooms_total:
+                    type: integer
+                    minimum: 0
+                  active_bookings:
+                    type: integer
+                    minimum: 0
+                  cancelled_bookings:
+                    type: integer
+                    minimum: 0
+        '401':
+          description: Требуется авторизация
+        '403':
+          description: Только администратор
 components:
   securitySchemes:
     BearerAuth:
