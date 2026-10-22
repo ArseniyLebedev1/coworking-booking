@@ -239,6 +239,54 @@ paths:
         '422':
           description: Ошибка валидации данных
 
+          
+  /auth/forgot-password:
+    post:
+      tags:
+        - Auth
+      summary: Запрос восстановления пароля
+      description: |
+        Принимает email пользователя и создаёт
+        одноразовый токен восстановления пароля.
+
+        Для учебного проекта ссылка восстановления
+        выводится в лог сервера вместо отправки email.
+        Токен нельзя записывать в публичные логи
+        рабочего окружения.
+      operationId: forgotPassword
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+
+      responses:
+        '200':
+          description: |
+            Запрос обработан. Ответ одинаковый
+            для существующего и неизвестного email.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Если аккаунт существует, инструкция отправлена
+
+        '422':
+          description: Ошибка валидации данных
+
+
 
 components:
   securitySchemes:
