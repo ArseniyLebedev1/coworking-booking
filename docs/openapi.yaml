@@ -587,6 +587,81 @@ paths:
 
 
 
+  /users/{user_id}:
+    patch:
+      tags:
+        - Users
+      summary: Управление пользователем
+      description: |
+        Позволяет администратору изменять роль
+        пользователя и статус блокировки.
+        Доступ только для роли admin.
+      operationId: updateUserByAdmin
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: UUID пользователя
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                role:
+                  type: string
+                  enum:
+                    - guest
+                    - employee
+                    - admin
+                is_blocked:
+                  type: boolean
+
+      responses:
+        '200':
+          description: Данные пользователя обновлены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                  is_blocked:
+                    type: boolean
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав доступа
+
+        '404':
+          description: Пользователь не найден
+
+        '422':
+          description: Ошибка валидации данных
+
+
 components:
   securitySchemes:
     BearerAuth:
