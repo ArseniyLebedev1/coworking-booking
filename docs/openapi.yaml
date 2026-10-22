@@ -1013,6 +1013,127 @@ paths:
         '422':
           description: Некорректный UUID коворкинга
 
+          
+  /rooms:
+    get:
+      tags:
+        - Rooms
+      summary: Получение списка помещений
+      description: |
+        Возвращает список активных переговорных
+        комнат и рабочих мест.
+        Доступен без авторизации.
+        Поиск, фильтрация, сортировка и пагинация
+        выполняются на сервере.
+      operationId: getRooms
+
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+
+        - name: search
+          in: query
+          description: Поиск по названию помещения
+          schema:
+            type: string
+
+        - name: location_id
+          in: query
+          description: UUID коворкинга
+          schema:
+            type: string
+            format: uuid
+
+        - name: type
+          in: query
+          description: Тип помещения
+          schema:
+            type: string
+            enum:
+              - meeting_room
+              - workspace
+
+        - name: min_capacity
+          in: query
+          description: Минимальная вместимость
+          schema:
+            type: integer
+            minimum: 1
+
+        - name: sort
+          in: query
+          description: Сортировка помещений
+          schema:
+            type: string
+            enum:
+              - name_asc
+              - name_desc
+              - capacity_asc
+              - capacity_desc
+            default: name_asc
+
+      responses:
+        '200':
+          description: Список помещений получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total
+                  - page
+                  - limit
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        location_id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        type:
+                          type: string
+                          enum:
+                            - meeting_room
+                            - workspace
+                        capacity:
+                          type: integer
+                        image_url:
+                          type: string
+                          nullable: true
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+        '422':
+          description: Ошибка валидации параметров
+
+
 
 components:
   securitySchemes:
