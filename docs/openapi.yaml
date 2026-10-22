@@ -662,6 +662,97 @@ paths:
           description: Ошибка валидации данных
 
 
+  /locations:
+    get:
+      tags:
+        - Locations
+      summary: Получение списка коворкингов
+      description: |
+        Возвращает список коворкингов с пагинацией,
+        поиском, фильтрацией и сортировкой.
+        Доступен без авторизации.
+      operationId: getLocations
+
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+
+        - name: search
+          in: query
+          description: Поиск по названию или адресу
+          schema:
+            type: string
+
+        - name: city
+          in: query
+          description: Фильтрация по городу
+          schema:
+            type: string
+
+        - name: sort
+          in: query
+          description: Сортировка коворкингов
+          schema:
+            type: string
+            enum:
+              - name_asc
+              - name_desc
+              - newest
+            default: name_asc
+
+      responses:
+        '200':
+          description: Список коворкингов получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                  - total
+                  - page
+                  - limit
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        address:
+                          type: string
+                        city:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+
+        '422':
+          description: Ошибка валидации параметров
+
+
 components:
   securitySchemes:
     BearerAuth:
