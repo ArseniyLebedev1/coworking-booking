@@ -1,40 +1,36 @@
 openapi: 3.0.3
-
 info:
   title: Coworking Booking API
-  description: |
-    REST API платформы бронирования
+  description: 'REST API платформы бронирования
+
     переговорных комнат и коворкингов.
+
+    '
   version: 1.0.0
-
 servers:
-  - url: http://localhost:8000
-    description: Локальный сервер FastAPI
-
+- url: http://localhost:8000
+  description: Локальный сервер FastAPI
 tags:
-  - name: Auth
-    description: Регистрация и авторизация
-  - name: Users
-    description: Управление пользователями
-  - name: Locations
-    description: Управление коворкингами
-  - name: Rooms
-    description: Управление помещениями
-  - name: Bookings
-    description: Управление бронированиями
-  - name: Amenities
-    description: Управление удобствами
-
-
+- name: Auth
+  description: Регистрация и авторизация
+- name: Users
+  description: Управление пользователями
+- name: Locations
+  description: Управление коворкингами
+- name: Rooms
+  description: Управление помещениями
+- name: Bookings
+  description: Управление бронированиями
+- name: Amenities
+  description: Управление удобствами
 paths:
   /auth/register:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Регистрация пользователя
       description: Создание учётной записи сотрудника
       operationId: registerUser
-
       requestBody:
         required: true
         content:
@@ -42,9 +38,9 @@ paths:
             schema:
               type: object
               required:
-                - email
-                - password
-                - full_name
+              - email
+              - password
+              - full_name
               properties:
                 email:
                   type: string
@@ -58,7 +54,6 @@ paths:
                   type: string
                   minLength: 1
                   example: Иван Иванов
-
       responses:
         '201':
           description: Пользователь успешно создан
@@ -78,25 +73,19 @@ paths:
                   role:
                     type: string
                     example: employee
-
         '400':
           description: Некорректные данные
-
         '409':
           description: Пользователь с таким email уже существует
-
         '422':
           description: Ошибка валидации данных
-
-
   /auth/login:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Авторизация пользователя
       description: Проверка email и пароля, выдача JWT
       operationId: loginUser
-
       requestBody:
         required: true
         content:
@@ -104,8 +93,8 @@ paths:
             schema:
               type: object
               required:
-                - email
-                - password
+              - email
+              - password
               properties:
                 email:
                   type: string
@@ -114,7 +103,6 @@ paths:
                 password:
                   type: string
                   format: password
-
       responses:
         '200':
           description: Успешная авторизация
@@ -123,9 +111,9 @@ paths:
               schema:
                 type: object
                 required:
-                  - access_token
-                  - refresh_token
-                  - token_type
+                - access_token
+                - refresh_token
+                - token_type
                 properties:
                   access_token:
                     type: string
@@ -136,26 +124,23 @@ paths:
                   token_type:
                     type: string
                     example: bearer
-
         '401':
           description: Неверный email или пароль
-
         '403':
           description: Учётная запись заблокирована
-
         '422':
           description: Ошибка валидации данных
-
   /auth/refresh:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Обновление JWT-токенов
-      description: |
-        Выдаёт новую пару токенов по действительному
-        refresh token.
-      operationId: refreshToken
+      description: 'Выдаёт новую пару токенов по действительному
 
+        refresh token.
+
+        '
+      operationId: refreshToken
       requestBody:
         required: true
         content:
@@ -163,12 +148,11 @@ paths:
             schema:
               type: object
               required:
-                - refresh_token
+              - refresh_token
               properties:
                 refresh_token:
                   type: string
                   description: Действующий refresh token
-
       responses:
         '200':
           description: Токены успешно обновлены
@@ -177,9 +161,9 @@ paths:
               schema:
                 type: object
                 required:
-                  - access_token
-                  - refresh_token
-                  - token_type
+                - access_token
+                - refresh_token
+                - token_type
                 properties:
                   access_token:
                     type: string
@@ -190,32 +174,29 @@ paths:
                   token_type:
                     type: string
                     example: bearer
-
         '401':
-          description: |
-            Refresh token недействителен,
+          description: 'Refresh token недействителен,
+
             отозван или срок его действия истёк.
 
+            '
         '403':
           description: Учётная запись заблокирована
-
         '422':
           description: Ошибка валидации данных
-
-
   /auth/logout:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Выход из системы
-      description: |
-        Отзывает refresh token пользователя,
+      description: 'Отзывает refresh token пользователя,
+
         чтобы его нельзя было использовать повторно.
+
+        '
       operationId: logoutUser
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -223,38 +204,38 @@ paths:
             schema:
               type: object
               required:
-                - refresh_token
+              - refresh_token
               properties:
                 refresh_token:
                   type: string
                   description: Refresh token для отзыва
-
       responses:
         '204':
           description: Выход выполнен успешно
-
         '401':
           description: Пользователь не авторизован
-
         '422':
           description: Ошибка валидации данных
-
-          
   /auth/forgot-password:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Запрос восстановления пароля
-      description: |
-        Принимает email пользователя и создаёт
+      description: 'Принимает email пользователя и создаёт
+
         одноразовый токен восстановления пароля.
 
-        Для учебного проекта ссылка восстановления
-        выводится в лог сервера вместо отправки email.
-        Токен нельзя записывать в публичные логи
-        рабочего окружения.
-      operationId: forgotPassword
 
+        Для учебного проекта ссылка восстановления
+
+        выводится в лог сервера вместо отправки email.
+
+        Токен нельзя записывать в публичные логи
+
+        рабочего окружения.
+
+        '
+      operationId: forgotPassword
       requestBody:
         required: true
         content:
@@ -262,18 +243,19 @@ paths:
             schema:
               type: object
               required:
-                - email
+              - email
               properties:
                 email:
                   type: string
                   format: email
                   example: user@example.com
-
       responses:
         '200':
-          description: |
-            Запрос обработан. Ответ одинаковый
+          description: 'Запрос обработан. Ответ одинаковый
+
             для существующего и неизвестного email.
+
+            '
           content:
             application/json:
               schema:
@@ -282,23 +264,23 @@ paths:
                   message:
                     type: string
                     example: Если аккаунт существует, инструкция отправлена
-
         '422':
           description: Ошибка валидации данных
-
-
   /auth/reset-password:
     post:
       tags:
-        - Auth
+      - Auth
       summary: Установка нового пароля
-      description: |
-        Проверяет одноразовый токен восстановления
-        и устанавливает новый пароль пользователя.
-        После успешного сброса токен становится
-        недействительным.
-      operationId: resetPassword
+      description: 'Проверяет одноразовый токен восстановления
 
+        и устанавливает новый пароль пользователя.
+
+        После успешного сброса токен становится
+
+        недействительным.
+
+        '
+      operationId: resetPassword
       requestBody:
         required: true
         content:
@@ -306,8 +288,8 @@ paths:
             schema:
               type: object
               required:
-                - token
-                - new_password
+              - token
+              - new_password
               properties:
                 token:
                   type: string
@@ -317,7 +299,6 @@ paths:
                   format: password
                   minLength: 8
                   description: Новый пароль пользователя
-
       responses:
         '200':
           description: Пароль успешно изменён
@@ -329,27 +310,23 @@ paths:
                   message:
                     type: string
                     example: Пароль успешно изменён
-
         '400':
-          description: |
-            Токен недействителен, уже использован
+          description: 'Токен недействителен, уже использован
+
             или срок его действия истёк.
 
+            '
         '422':
           description: Ошибка валидации данных
-
-
-  
   /users/me:
     get:
       tags:
-        - Users
+      - Users
       summary: Получение профиля пользователя
       description: Возвращает данные текущего пользователя
       operationId: getCurrentUser
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       responses:
         '200':
           description: Профиль успешно получен
@@ -358,10 +335,10 @@ paths:
               schema:
                 type: object
                 required:
-                  - id
-                  - email
-                  - full_name
-                  - role
+                - id
+                - email
+                - full_name
+                - role
                 properties:
                   id:
                     type: string
@@ -374,28 +351,24 @@ paths:
                   role:
                     type: string
                     enum:
-                      - guest
-                      - employee
-                      - admin
+                    - guest
+                    - employee
+                    - admin
                   created_at:
                     type: string
                     format: date-time
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Учётная запись заблокирована
-
     patch:
       tags:
-        - Users
+      - Users
       summary: Редактирование профиля
       description: Изменяет имя текущего пользователя
       operationId: updateCurrentUser
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -410,7 +383,6 @@ paths:
                   minLength: 1
                   maxLength: 255
                   example: Иван Петров
-
       responses:
         '200':
           description: Профиль успешно обновлён
@@ -430,33 +402,28 @@ paths:
                   role:
                     type: string
                     enum:
-                      - guest
-                      - employee
-                      - admin
-
+                    - guest
+                    - employee
+                    - admin
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Учётная запись заблокирована
-
         '422':
           description: Ошибка валидации данных
-
-
   /users/me/password:
     patch:
       tags:
-        - Users
+      - Users
       summary: Смена пароля пользователя
-      description: |
-        Изменяет пароль текущего авторизованного
+      description: 'Изменяет пароль текущего авторизованного
+
         пользователя после проверки старого пароля.
+
+        '
       operationId: changeCurrentUserPassword
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -464,8 +431,8 @@ paths:
             schema:
               type: object
               required:
-                - current_password
-                - new_password
+              - current_password
+              - new_password
               additionalProperties: false
               properties:
                 current_password:
@@ -477,72 +444,62 @@ paths:
                   format: password
                   minLength: 8
                   description: Новый пароль
-
       responses:
         '204':
           description: Пароль успешно изменён
-
         '400':
           description: Неверный текущий пароль
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Учётная запись заблокирована
-
         '422':
           description: Ошибка валидации данных
-
-          
   /users:
     get:
       tags:
-        - Users
+      - Users
       summary: Получение списка пользователей
-      description: |
-        Возвращает список пользователей с пагинацией,
+      description: 'Возвращает список пользователей с пагинацией,
+
         поиском и фильтрацией.
+
         Доступ разрешён только администратору.
+
+        '
       operationId: getUsers
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-
-        - name: limit
-          in: query
-          description: Количество записей на странице
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-
-        - name: search
-          in: query
-          description: Поиск по email или имени
-          schema:
-            type: string
-
-        - name: role
-          in: query
-          description: Фильтрация по роли
-          schema:
-            type: string
-            enum:
-              - guest
-              - employee
-              - admin
-
+      - name: page
+        in: query
+        description: Номер страницы
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        description: Количество записей на странице
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: search
+        in: query
+        description: Поиск по email или имени
+        schema:
+          type: string
+      - name: role
+        in: query
+        description: Фильтрация по роли
+        schema:
+          type: string
+          enum:
+          - guest
+          - employee
+          - admin
       responses:
         '200':
           description: Список пользователей получен
@@ -568,48 +525,41 @@ paths:
                           type: string
                         is_blocked:
                           type: boolean
-
                   total:
                     type: integer
                   page:
                     type: integer
                   limit:
                     type: integer
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Недостаточно прав доступа
-
         '422':
           description: Ошибка валидации параметров
-
-
-
   /users/{user_id}:
     patch:
       tags:
-        - Users
+      - Users
       summary: Управление пользователем
-      description: |
-        Позволяет администратору изменять роль
+      description: 'Позволяет администратору изменять роль
+
         пользователя и статус блокировки.
+
         Доступ только для роли admin.
+
+        '
       operationId: updateUserByAdmin
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       parameters:
-        - name: user_id
-          in: path
-          required: true
-          description: UUID пользователя
-          schema:
-            type: string
-            format: uuid
-
+      - name: user_id
+        in: path
+        required: true
+        description: UUID пользователя
+        schema:
+          type: string
+          format: uuid
       requestBody:
         required: true
         content:
@@ -622,12 +572,11 @@ paths:
                 role:
                   type: string
                   enum:
-                    - guest
-                    - employee
-                    - admin
+                  - guest
+                  - employee
+                  - admin
                 is_blocked:
                   type: boolean
-
       responses:
         '200':
           description: Данные пользователя обновлены
@@ -648,273 +597,61 @@ paths:
                     type: string
                   is_blocked:
                     type: boolean
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Недостаточно прав доступа
-
         '404':
           description: Пользователь не найден
-
         '422':
           description: Ошибка валидации данных
-
-
   /locations:
     get:
       tags:
-        - Locations
+      - Locations
       summary: Получение списка коворкингов
-      description: |
-        Возвращает список коворкингов с пагинацией,
+      description: 'Возвращает список коворкингов с пагинацией,
+
         поиском, фильтрацией и сортировкой.
+
         Доступен без авторизации.
+
+        '
       operationId: getLocations
-
-   
-    delete:
-      tags:
-        - Locations
-      summary: Удаление коворкинга
-      description: |
-        Удаляет коворкинг по его UUID.
-        Доступ разрешён только администратору.
-        Удаление запрещено, если в коворкинге
-        существуют помещения.
-      operationId: deleteLocation
-
-      security:
-        - BearerAuth: []
-
       parameters:
-        - name: location_id
-          in: path
-          required: true
-          description: UUID удаляемого коворкинга
-          schema:
-            type: string
-            format: uuid
-
-      responses:
-        '204':
-          description: Коворкинг успешно удалён
-
-        '401':
-          description: Пользователь не авторизован
-
-        '403':
-          description: Недостаточно прав администратора
-
-        '404':
-          description: Коворкинг не найден
-
-        '409':
-          description: |
-            Невозможно удалить коворкинг,
-            пока в нём существуют помещения.
-
-        '422':
-          description: Некорректный UUID коворкинга
-
-
-   
-    patch:
-      tags:
-        - Locations
-      summary: Редактирование коворкинга
-      description: |
-        Изменяет данные существующего коворкинга.
-        Доступ разрешён только администратору.
-      operationId: updateLocation
-
-      security:
-        - BearerAuth: []
-
-      parameters:
-        - name: location_id
-          in: path
-          required: true
-          description: UUID коворкинга
-          schema:
-            type: string
-            format: uuid
-
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              minProperties: 1
-              additionalProperties: false
-              properties:
-                name:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                address:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                city:
-                  type: string
-                  minLength: 1
-                  maxLength: 100
-                description:
-                  type: string
-                  nullable: true
-
-      responses:
-        '200':
-          description: Коворкинг успешно обновлён
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  name:
-                    type: string
-                  address:
-                    type: string
-                  city:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-
-        '401':
-          description: Пользователь не авторизован
-
-        '403':
-          description: Недостаточно прав администратора
-
-        '404':
-          description: Коворкинг не найден
-
-        '422':
-          description: Ошибка валидации данных
-
-
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-
-        - name: search
-          in: query
-          description: Поиск по названию или адресу
-          schema:
-            type: string
-
-        - name: city
-          in: query
-          description: Фильтрация по городу
-          schema:
-            type: string
-
-        - name: sort
-          in: query
-          description: Сортировка коворкингов
-          schema:
-            type: string
-            enum:
-              - name_asc
-              - name_desc
-              - newest
-            default: name_asc
-
-        
-    post:
-      tags:
-        - Locations
-      summary: Создание коворкинга
-      description: |
-        Создаёт новый коворкинг.
-        Доступ разрешён только администратору.
-      operationId: createLocation
-
-      security:
-        - BearerAuth: []
-
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - address
-                - city
-              additionalProperties: false
-              properties:
-                name:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                  example: Бизнес-центр
-                address:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                  example: ул. Ленина, 10
-                city:
-                  type: string
-                  minLength: 1
-                  maxLength: 100
-                  example: Москва
-                description:
-                  type: string
-                  nullable: true
-                  example: Современный коворкинг
-
-      responses:
-        '201':
-          description: Коворкинг успешно создан
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  name:
-                    type: string
-                  address:
-                    type: string
-                  city:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-
-        '401':
-          description: Пользователь не авторизован
-
-        '403':
-          description: Недостаточно прав администратора
-
-        '422':
-          description: Ошибка валидации данных
-
-
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: search
+        in: query
+        description: Поиск по названию или адресу
+        schema:
+          type: string
+      - name: city
+        in: query
+        description: Фильтрация по городу
+        schema:
+          type: string
+      - name: sort
+        in: query
+        description: Сортировка коворкингов
+        schema:
+          type: string
+          enum:
+          - name_asc
+          - name_desc
+          - newest
+          default: name_asc
       responses:
         '200':
           description: Список коворкингов получен
@@ -923,10 +660,10 @@ paths:
               schema:
                 type: object
                 required:
-                  - items
-                  - total
-                  - page
-                  - limit
+                - items
+                - total
+                - page
+                - limit
                 properties:
                   items:
                     type: array
@@ -951,30 +688,106 @@ paths:
                     type: integer
                   limit:
                     type: integer
-
         '422':
           description: Ошибка валидации параметров
+    post:
+      tags:
+      - Locations
+      summary: Создание коворкинга
+      description: 'Создаёт новый коворкинг.
 
+        Доступ разрешён только администратору.
 
+        '
+      operationId: createLocation
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - address
+              - city
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: Бизнес-центр
+                address:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: ул. Ленина, 10
+                city:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  example: Москва
+                description:
+                  type: string
+                  nullable: true
+                  example: Современный коворкинг
+      responses:
+        '201':
+          description: Коворкинг успешно создано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                    example: Бизнес-центр
+                  address:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                    example: ул. Ленина, 10
+                  city:
+                    type: string
+                    minLength: 1
+                    maxLength: 100
+                    example: Москва
+                  description:
+                    type: string
+                    nullable: true
+                    example: Современный коворкинг
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав администратора
+        '422':
+          description: Ошибка валидации данных
   /locations/{location_id}:
     get:
       tags:
-        - Locations
+      - Locations
       summary: Получение информации о коворкинге
-      description: |
-        Возвращает подробную информацию о коворкинге
+      description: 'Возвращает подробную информацию о коворкинге
+
         по его UUID. Доступен без авторизации.
+
+        '
       operationId: getLocationById
-
       parameters:
-        - name: location_id
-          in: path
-          required: true
-          description: UUID коворкинга
-          schema:
-            type: string
-            format: uuid
-
+      - name: location_id
+        in: path
+        required: true
+        description: UUID коворкинга
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: Информация о коворкинге получена
@@ -983,10 +796,10 @@ paths:
               schema:
                 type: object
                 required:
-                  - id
-                  - name
-                  - address
-                  - city
+                - id
+                - name
+                - address
+                - city
                 properties:
                   id:
                     type: string
@@ -1006,50 +819,476 @@ paths:
                   updated_at:
                     type: string
                     format: date-time
-
         '404':
           description: Коворкинг не найден
-
         '422':
           description: Некорректный UUID коворкинга
+    patch:
+      tags:
+      - Locations
+      summary: Редактирование коворкинга
+      description: 'Изменяет данные существующего коворкинга.
 
-          
+        Доступ разрешён только администратору.
+
+        '
+      operationId: updateLocation
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: location_id
+        in: path
+        required: true
+        description: UUID коворкинга
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                address:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                city:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  nullable: true
+      responses:
+        '200':
+          description: Коворкинг успешно обновлён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  city:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав администратора
+        '404':
+          description: Коворкинг не найден
+        '422':
+          description: Ошибка валидации данных
+    delete:
+      tags:
+      - Locations
+      summary: Удаление коворкинга
+      description: 'Удаляет коворкинг по его UUID.
+
+        Доступ разрешён только администратору.
+
+        Удаление запрещено, если в коворкинге
+
+        существуют помещения.
+
+        '
+      operationId: deleteLocation
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: location_id
+        in: path
+        required: true
+        description: UUID удаляемого коворкинга
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '204':
+          description: Коворкинг успешно удалён
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав администратора
+        '404':
+          description: Коворкинг не найден
+        '409':
+          description: 'Невозможно удалить коворкинг,
+
+            пока в нём существуют помещения.
+
+            '
+        '422':
+          description: Некорректный UUID коворкинга
   /rooms:
     get:
       tags:
-        - Rooms
+      - Rooms
       summary: Получение списка помещений
-      description: |
-        Возвращает список активных переговорных
-        комнат и рабочих мест.
-        Доступен без авторизации.
-        Поиск, фильтрация, сортировка и пагинация
-        выполняются на сервере.
-      operationId: getRooms
+      description: 'Возвращает список активных переговорных
 
-   
+        комнат и рабочих мест.
+
+        Доступен без авторизации.
+
+        Поиск, фильтрация, сортировка и пагинация
+
+        выполняются на сервере.
+
+        '
+      operationId: getRooms
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: search
+        in: query
+        description: Поиск по названию помещения
+        schema:
+          type: string
+      - name: location_id
+        in: query
+        description: UUID коворкинга
+        schema:
+          type: string
+          format: uuid
+      - name: type
+        in: query
+        description: Тип помещения
+        schema:
+          type: string
+          enum:
+          - meeting_room
+          - workspace
+      - name: min_capacity
+        in: query
+        description: Минимальная вместимость
+        schema:
+          type: integer
+          minimum: 1
+      - name: sort
+        in: query
+        description: Сортировка помещений
+        schema:
+          type: string
+          enum:
+          - name_asc
+          - name_desc
+          - capacity_asc
+          - capacity_desc
+          default: name_asc
+      responses:
+        '200':
+          description: Список помещений получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                - total
+                - page
+                - limit
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        location_id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        description:
+                          type: string
+                          nullable: true
+                        type:
+                          type: string
+                          enum:
+                          - meeting_room
+                          - workspace
+                        capacity:
+                          type: integer
+                        image_url:
+                          type: string
+                          nullable: true
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  limit:
+                    type: integer
+        '422':
+          description: Ошибка валидации параметров
+    post:
+      tags:
+      - Rooms
+      summary: Создание помещения
+      description: 'Создаёт переговорную комнату или рабочее место
+
+        в существующем коворкинге.
+
+        Доступ разрешён только администратору.
+
+        '
+      operationId: createRoom
+      security:
+      - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - location_id
+              - name
+              - type
+              - capacity
+              additionalProperties: false
+              properties:
+                location_id:
+                  type: string
+                  format: uuid
+                  description: UUID коворкинга
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: Переговорная №1
+                description:
+                  type: string
+                  nullable: true
+                type:
+                  type: string
+                  enum:
+                  - meeting_room
+                  - workspace
+                capacity:
+                  type: integer
+                  minimum: 1
+                  example: 8
+                is_active:
+                  type: boolean
+                  default: true
+                image_url:
+                  type: string
+                  nullable: true
+      responses:
+        '201':
+          description: Помещение успешно создано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  location_id:
+                    type: string
+                    format: uuid
+                    description: UUID коворкинга
+                  name:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                    example: Переговорная №1
+                  description:
+                    type: string
+                    nullable: true
+                  type:
+                    type: string
+                    enum:
+                    - meeting_room
+                    - workspace
+                  capacity:
+                    type: integer
+                    minimum: 1
+                    example: 8
+                  is_active:
+                    type: boolean
+                  image_url:
+                    type: string
+                    nullable: true
+        '401':
+          description: Пользователь не авторизован
+        '403':
+          description: Недостаточно прав администратора
+        '422':
+          description: Ошибка валидации данных
+        '404':
+          description: Указанный коворкинг не найден
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: search
+        in: query
+        description: Поиск по названию помещения
+        schema:
+          type: string
+      - name: location_id
+        in: query
+        description: UUID коворкинга
+        schema:
+          type: string
+          format: uuid
+      - name: type
+        in: query
+        description: Тип помещения
+        schema:
+          type: string
+          enum:
+          - meeting_room
+          - workspace
+      - name: min_capacity
+        in: query
+        description: Минимальная вместимость
+        schema:
+          type: integer
+          minimum: 1
+      - name: sort
+        in: query
+        description: Сортировка помещений
+        schema:
+          type: string
+          enum:
+          - name_asc
+          - name_desc
+          - capacity_asc
+          - capacity_desc
+          default: name_asc
+  /rooms/{room_id}:
+    get:
+      tags:
+      - Rooms
+      summary: Получение информации о помещении
+      description: 'Возвращает подробную информацию
+
+        о переговорной комнате или рабочем месте.
+
+        Доступен без авторизации.
+
+        '
+      operationId: getRoomById
+      parameters:
+      - name: room_id
+        in: path
+        required: true
+        description: UUID помещения
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Информация о помещении получена
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - location_id
+                - name
+                - type
+                - capacity
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  location_id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  type:
+                    type: string
+                    enum:
+                    - meeting_room
+                    - workspace
+                  capacity:
+                    type: integer
+                  is_active:
+                    type: boolean
+                  image_url:
+                    type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+        '404':
+          description: Помещение не найдено
+        '422':
+          description: Некорректный UUID помещения
     patch:
       tags:
-        - Rooms
+      - Rooms
       summary: Редактирование помещения
-      description: |
-        Изменяет характеристики переговорной комнаты
+      description: 'Изменяет характеристики переговорной комнаты
+
         или рабочего места.
+
         Доступ разрешён только администратору.
+
+        '
       operationId: updateRoom
-
       security:
-        - BearerAuth: []
-
+      - BearerAuth: []
       parameters:
-        - name: room_id
-          in: path
-          required: true
-          description: UUID помещения
-          schema:
-            type: string
-            format: uuid
-
+      - name: room_id
+        in: path
+        required: true
+        description: UUID помещения
+        schema:
+          type: string
+          format: uuid
       requestBody:
         required: true
         content:
@@ -1069,8 +1308,8 @@ paths:
                 type:
                   type: string
                   enum:
-                    - meeting_room
-                    - workspace
+                  - meeting_room
+                  - workspace
                 capacity:
                   type: integer
                   minimum: 1
@@ -1079,53 +1318,75 @@ paths:
                 image_url:
                   type: string
                   nullable: true
-
-                  
-    delete:
-      tags:
-        - Rooms
-      summary: Удаление помещения
-      description: |
-        Удаляет помещение по его UUID.
-        Доступ разрешён только администратору.
-        Удаление запрещено, если у помещения
-        существуют бронирования.
-      operationId: deleteRoom
-
-      security:
-        - BearerAuth: []
-
-      parameters:
-        - name: room_id
-          in: path
-          required: true
-          description: UUID удаляемого помещения
-          schema:
-            type: string
-            format: uuid
-
       responses:
-        '204':
-          description: Помещение успешно удалено
-
+        '200':
+          description: Помещение успешно обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  location_id:
+                    type: string
+                    format: uuid
+                    description: UUID коворкинга
+                  name:
+                    type: string
+                    minLength: 1
+                    maxLength: 255
+                    example: Переговорная №1
+                  description:
+                    type: string
+                    nullable: true
+                  type:
+                    type: string
+                    enum:
+                    - meeting_room
+                    - workspace
+                  capacity:
+                    type: integer
+                    minimum: 1
+                    example: 8
+                  is_active:
+                    type: boolean
+                  image_url:
+                    type: string
+                    nullable: true
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Недостаточно прав администратора
-
         '404':
           description: Помещение не найдено
-
-        '409':
-          description: |
-            Удаление невозможно, поскольку
-            у помещения существуют бронирования.
-
         '422':
-          description: Некорректный UUID помещения
+          description: Ошибка валидации данных
+    delete:
+      tags:
+      - Rooms
+      summary: Удаление помещения
+      description: 'Удаляет помещение по его UUID.
 
+        Доступ разрешён только администратору.
 
+        Удаление запрещено, если у помещения
+
+        существуют бронирования.
+
+        '
+      operationId: deleteRoom
+      security:
+      - BearerAuth: []
+      parameters:
+      - name: room_id
+        in: path
+        required: true
+        description: UUID удаляемого помещения
+        schema:
+          type: string
+          format: uuid
       responses:
         '200':
           description: Помещение успешно обновлено
@@ -1148,108 +1409,8 @@ paths:
                   type:
                     type: string
                     enum:
-                      - meeting_room
-                      - workspace
-                  capacity:
-                    type: integer
-                  is_active:
-                    type: boolean
-                  image_url:
-                    type: string
-                    nullable: true
-
-        '401':
-          description: Пользователь не авторизован
-
-        '403':
-          description: Недостаточно прав администратора
-
-        '404':
-          description: Помещение не найдено
-
-        '422':
-          description: Ошибка валидации данных
-
-
-    
-    post:
-      tags:
-        - Rooms
-      summary: Создание помещения
-      description: |
-        Создаёт переговорную комнату или рабочее место
-        в существующем коворкинге.
-        Доступ разрешён только администратору.
-      operationId: createRoom
-
-      security:
-        - BearerAuth: []
-
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - location_id
-                - name
-                - type
-                - capacity
-              additionalProperties: false
-              properties:
-                location_id:
-                  type: string
-                  format: uuid
-                  description: UUID коворкинга
-                name:
-                  type: string
-                  minLength: 1
-                  maxLength: 255
-                  example: Переговорная №1
-                description:
-                  type: string
-                  nullable: true
-                type:
-                  type: string
-                  enum:
                     - meeting_room
                     - workspace
-                capacity:
-                  type: integer
-                  minimum: 1
-                  example: 8
-                is_active:
-                  type: boolean
-                  default: true
-                image_url:
-                  type: string
-                  nullable: true
-
-      responses:
-        '201':
-          description: Помещение успешно создано
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  location_id:
-                    type: string
-                    format: uuid
-                  name:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-                  type:
-                    type: string
-                    enum:
-                      - meeting_room
-                      - workspace
                   capacity:
                     type: integer
                   is_active:
@@ -1257,200 +1418,14 @@ paths:
                   image_url:
                     type: string
                     nullable: true
-
         '401':
           description: Пользователь не авторизован
-
         '403':
           description: Недостаточно прав администратора
-
-        '404':
-          description: Указанный коворкинг не найден
-
-        '422':
-          description: Ошибка валидации данных
-
-
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-
-        - name: search
-          in: query
-          description: Поиск по названию помещения
-          schema:
-            type: string
-
-        - name: location_id
-          in: query
-          description: UUID коворкинга
-          schema:
-            type: string
-            format: uuid
-
-        - name: type
-          in: query
-          description: Тип помещения
-          schema:
-            type: string
-            enum:
-              - meeting_room
-              - workspace
-
-        - name: min_capacity
-          in: query
-          description: Минимальная вместимость
-          schema:
-            type: integer
-            minimum: 1
-
-        - name: sort
-          in: query
-          description: Сортировка помещений
-          schema:
-            type: string
-            enum:
-              - name_asc
-              - name_desc
-              - capacity_asc
-              - capacity_desc
-            default: name_asc
-
-      responses:
-        '200':
-          description: Список помещений получен
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - items
-                  - total
-                  - page
-                  - limit
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        location_id:
-                          type: string
-                          format: uuid
-                        name:
-                          type: string
-                        description:
-                          type: string
-                          nullable: true
-                        type:
-                          type: string
-                          enum:
-                            - meeting_room
-                            - workspace
-                        capacity:
-                          type: integer
-                        image_url:
-                          type: string
-                          nullable: true
-                  total:
-                    type: integer
-                  page:
-                    type: integer
-                  limit:
-                    type: integer
-
-        '422':
-          description: Ошибка валидации параметров
-
-          
-  /rooms/{room_id}:
-    get:
-      tags:
-        - Rooms
-      summary: Получение информации о помещении
-      description: |
-        Возвращает подробную информацию
-        о переговорной комнате или рабочем месте.
-        Доступен без авторизации.
-      operationId: getRoomById
-
-      parameters:
-        - name: room_id
-          in: path
-          required: true
-          description: UUID помещения
-          schema:
-            type: string
-            format: uuid
-
-      responses:
-        '200':
-          description: Информация о помещении получена
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - id
-                  - location_id
-                  - name
-                  - type
-                  - capacity
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  location_id:
-                    type: string
-                    format: uuid
-                  name:
-                    type: string
-                  description:
-                    type: string
-                    nullable: true
-                  type:
-                    type: string
-                    enum:
-                      - meeting_room
-                      - workspace
-                  capacity:
-                    type: integer
-                  is_active:
-                    type: boolean
-                  image_url:
-                    type: string
-                    nullable: true
-                  created_at:
-                    type: string
-                    format: date-time
-                  updated_at:
-                    type: string
-                    format: date-time
-
         '404':
           description: Помещение не найдено
-
         '422':
-          description: Некорректный UUID помещения
-
-
-
-
+          description: Ошибка валидации данных
 components:
   securitySchemes:
     BearerAuth:
