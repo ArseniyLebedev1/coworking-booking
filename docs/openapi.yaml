@@ -829,6 +829,64 @@ paths:
           description: Ошибка валидации параметров
 
 
+  /locations/{location_id}:
+    get:
+      tags:
+        - Locations
+      summary: Получение информации о коворкинге
+      description: |
+        Возвращает подробную информацию о коворкинге
+        по его UUID. Доступен без авторизации.
+      operationId: getLocationById
+
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          description: UUID коворкинга
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '200':
+          description: Информация о коворкинге получена
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - name
+                  - address
+                  - city
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  city:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+
+        '404':
+          description: Коворкинг не найден
+
+        '422':
+          description: Некорректный UUID коворкинга
+
+
 components:
   securitySchemes:
     BearerAuth:
