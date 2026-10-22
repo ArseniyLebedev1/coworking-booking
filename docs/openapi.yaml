@@ -203,6 +203,43 @@ paths:
           description: Ошибка валидации данных
 
 
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: Выход из системы
+      description: |
+        Отзывает refresh token пользователя,
+        чтобы его нельзя было использовать повторно.
+      operationId: logoutUser
+
+      security:
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  description: Refresh token для отзыва
+
+      responses:
+        '204':
+          description: Выход выполнен успешно
+
+        '401':
+          description: Пользователь не авторизован
+
+        '422':
+          description: Ошибка валидации данных
+
+
 components:
   securitySchemes:
     BearerAuth:
