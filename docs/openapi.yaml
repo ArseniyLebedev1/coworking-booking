@@ -287,6 +287,58 @@ paths:
           description: Ошибка валидации данных
 
 
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth
+      summary: Установка нового пароля
+      description: |
+        Проверяет одноразовый токен восстановления
+        и устанавливает новый пароль пользователя.
+        После успешного сброса токен становится
+        недействительным.
+      operationId: resetPassword
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - new_password
+              properties:
+                token:
+                  type: string
+                  description: Одноразовый токен восстановления
+                new_password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Новый пароль пользователя
+
+      responses:
+        '200':
+          description: Пароль успешно изменён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Пароль успешно изменён
+
+        '400':
+          description: |
+            Токен недействителен, уже использован
+            или срок его действия истёк.
+
+        '422':
+          description: Ошибка валидации данных
+
+
 
 components:
   securitySchemes:
