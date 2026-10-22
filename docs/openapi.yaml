@@ -444,6 +444,56 @@ paths:
           description: Ошибка валидации данных
 
 
+  /users/me/password:
+    patch:
+      tags:
+        - Users
+      summary: Смена пароля пользователя
+      description: |
+        Изменяет пароль текущего авторизованного
+        пользователя после проверки старого пароля.
+      operationId: changeCurrentUserPassword
+
+      security:
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+              additionalProperties: false
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  description: Текущий пароль
+                new_password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Новый пароль
+
+      responses:
+        '204':
+          description: Пароль успешно изменён
+
+        '400':
+          description: Неверный текущий пароль
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Учётная запись заблокирована
+
+        '422':
+          description: Ошибка валидации данных
+
 
 components:
   securitySchemes:
