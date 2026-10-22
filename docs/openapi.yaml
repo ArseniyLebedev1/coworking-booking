@@ -339,6 +339,58 @@ paths:
           description: Ошибка валидации данных
 
 
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Получение профиля пользователя
+      description: |
+        Возвращает информацию о текущем
+        авторизованном пользователе.
+      operationId: getCurrentUser
+
+      security:
+        - BearerAuth: []
+
+      responses:
+        '200':
+          description: Профиль успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - email
+                  - full_name
+                  - role
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                    enum:
+                      - guest
+                      - employee
+                      - admin
+                  created_at:
+                    type: string
+                    format: date-time
+
+        '401':
+          description: |
+            Пользователь не авторизован
+            или access token недействителен.
+
+        '403':
+          description: Учётная запись заблокирована
+
 
 components:
   securitySchemes:
