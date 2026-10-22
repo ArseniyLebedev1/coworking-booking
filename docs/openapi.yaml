@@ -1233,6 +1233,78 @@ paths:
         '422':
           description: Ошибка валидации параметров
 
+          
+  /rooms/{room_id}:
+    get:
+      tags:
+        - Rooms
+      summary: Получение информации о помещении
+      description: |
+        Возвращает подробную информацию
+        о переговорной комнате или рабочем месте.
+        Доступен без авторизации.
+      operationId: getRoomById
+
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          description: UUID помещения
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '200':
+          description: Информация о помещении получена
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - location_id
+                  - name
+                  - type
+                  - capacity
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  location_id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  type:
+                    type: string
+                    enum:
+                      - meeting_room
+                      - workspace
+                  capacity:
+                    type: integer
+                  is_active:
+                    type: boolean
+                  image_url:
+                    type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+
+        '404':
+          description: Помещение не найдено
+
+        '422':
+          description: Некорректный UUID помещения
+
+
 
 
 components:
