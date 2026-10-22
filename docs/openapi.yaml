@@ -1675,6 +1675,78 @@ paths:
         '422':
           description: Некорректный UUID бронирования
 
+          
+  /rooms/{room_id}/availability:
+    get:
+      tags:
+        - Rooms
+      summary: Получение занятых временных интервалов
+      description: |
+        Возвращает занятые интервалы помещения
+        за указанную дату.
+        Учитываются только подтверждённые
+        бронирования со статусом confirmed.
+        Доступен без авторизации.
+      operationId: getRoomAvailability
+
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          description: UUID помещения
+          schema:
+            type: string
+            format: uuid
+
+        - name: date
+          in: query
+          required: true
+          description: Дата проверки доступности
+          schema:
+            type: string
+            format: date
+            example: '2026-10-23'
+
+      responses:
+        '200':
+          description: Занятые интервалы получены
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - room_id
+                  - date
+                  - occupied_slots
+                properties:
+                  room_id:
+                    type: string
+                    format: uuid
+                  date:
+                    type: string
+                    format: date
+                  occupied_slots:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - start_time
+                        - end_time
+                      properties:
+                        start_time:
+                          type: string
+                          format: date-time
+                        end_time:
+                          type: string
+                          format: date-time
+
+        '404':
+          description: Помещение не найдено
+
+        '422':
+          description: Некорректная дата или UUID
+
+
 
 components:
   securitySchemes:
