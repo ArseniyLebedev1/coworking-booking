@@ -339,29 +339,60 @@ paths:
           description: Ошибка валидации данных
 
 
+  
   /users/me:
     get:
       tags:
         - Users
       summary: Получение профиля пользователя
-      description: |
-        Возвращает информацию о текущем
-        авторизованном пользователе.
+      description: Возвращает данные текущего пользователя
       operationId: getCurrentUser
-
       security:
         - BearerAuth: []
 
-    
+      responses:
+        '200':
+          description: Профиль успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - email
+                  - full_name
+                  - role
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                    enum:
+                      - guest
+                      - employee
+                      - admin
+                  created_at:
+                    type: string
+                    format: date-time
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Учётная запись заблокирована
+
     patch:
       tags:
         - Users
       summary: Редактирование профиля
-      description: |
-        Изменяет имя текущего авторизованного
-        пользователя.
+      description: Изменяет имя текущего пользователя
       operationId: updateCurrentUser
-
       security:
         - BearerAuth: []
 
@@ -412,45 +443,6 @@ paths:
         '422':
           description: Ошибка валидации данных
 
-        
-      responses:
-        '200':
-          description: Профиль успешно получен
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - id
-                  - email
-                  - full_name
-                  - role
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  email:
-                    type: string
-                    format: email
-                  full_name:
-                    type: string
-                  role:
-                    type: string
-                    enum:
-                      - guest
-                      - employee
-                      - admin
-                  created_at:
-                    type: string
-                    format: date-time
-
-        '401':
-          description: |
-            Пользователь не авторизован
-            или access token недействителен.
-
-        '403':
-          description: Учётная запись заблокирована
 
 
 components:
