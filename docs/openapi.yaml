@@ -25,7 +25,69 @@ tags:
   - name: Amenities
     description: Управление удобствами
 
-paths: {}
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Регистрация пользователя
+      description: Создание учётной записи сотрудника
+      operationId: registerUser
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - full_name
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  minLength: 8
+                  format: password
+                full_name:
+                  type: string
+                  minLength: 1
+                  example: Иван Иванов
+
+      responses:
+        '201':
+          description: Пользователь успешно создан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                    example: employee
+
+        '400':
+          description: Некорректные данные
+
+        '409':
+          description: Пользователь с таким email уже существует
+
+        '422':
+          description: Ошибка валидации данных
+
 
 components:
   securitySchemes:
