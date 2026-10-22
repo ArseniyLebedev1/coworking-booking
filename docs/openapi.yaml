@@ -352,6 +352,67 @@ paths:
       security:
         - BearerAuth: []
 
+    
+    patch:
+      tags:
+        - Users
+      summary: Редактирование профиля
+      description: |
+        Изменяет имя текущего авторизованного
+        пользователя.
+      operationId: updateCurrentUser
+
+      security:
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                full_name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: Иван Петров
+
+      responses:
+        '200':
+          description: Профиль успешно обновлён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                    format: email
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                    enum:
+                      - guest
+                      - employee
+                      - admin
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Учётная запись заблокирована
+
+        '422':
+          description: Ошибка валидации данных
+
+        
       responses:
         '200':
           description: Профиль успешно получен
