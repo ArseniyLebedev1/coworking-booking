@@ -1613,6 +1613,69 @@ paths:
         '422':
           description: Некорректный UUID бронирования
 
+          
+  /bookings/{booking_id}/cancel:
+    patch:
+      tags:
+        - Bookings
+      summary: Отмена бронирования
+      description: |
+        Отменяет активное бронирование.
+        Сотрудник может отменять только свои
+        бронирования, администратор — любые.
+        После отмены интервал освобождается.
+      operationId: cancelBooking
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          description: UUID бронирования
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '200':
+          description: Бронирование успешно отменено
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - status
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum:
+                      - cancelled
+                  updated_at:
+                    type: string
+                    format: date-time
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав доступа
+
+        '404':
+          description: Бронирование не найдено
+
+        '409':
+          description: Бронирование уже отменено
+
+        '422':
+          description: Некорректный UUID бронирования
+
+
 components:
   securitySchemes:
     BearerAuth:
