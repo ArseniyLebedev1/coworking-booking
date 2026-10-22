@@ -1027,6 +1027,104 @@ paths:
         выполняются на сервере.
       operationId: getRooms
 
+   
+    patch:
+      tags:
+        - Rooms
+      summary: Редактирование помещения
+      description: |
+        Изменяет характеристики переговорной комнаты
+        или рабочего места.
+        Доступ разрешён только администратору.
+      operationId: updateRoom
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: room_id
+          in: path
+          required: true
+          description: UUID помещения
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                description:
+                  type: string
+                  nullable: true
+                type:
+                  type: string
+                  enum:
+                    - meeting_room
+                    - workspace
+                capacity:
+                  type: integer
+                  minimum: 1
+                is_active:
+                  type: boolean
+                image_url:
+                  type: string
+                  nullable: true
+
+      responses:
+        '200':
+          description: Помещение успешно обновлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  location_id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  type:
+                    type: string
+                    enum:
+                      - meeting_room
+                      - workspace
+                  capacity:
+                    type: integer
+                  is_active:
+                    type: boolean
+                  image_url:
+                    type: string
+                    nullable: true
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав администратора
+
+        '404':
+          description: Помещение не найдено
+
+        '422':
+          description: Ошибка валидации данных
+
+
     
     post:
       tags:
