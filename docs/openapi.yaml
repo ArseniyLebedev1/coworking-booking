@@ -1,0 +1,35 @@
+openapi: 3.0.3
+
+info:
+  title: Coworking Booking API
+  description: |
+    REST API платформы бронирования
+    переговорных комнат и коворкингов.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Локальный сервер FastAPI
+
+tags:
+  - name: Auth
+    description: Регистрация и авторизация
+  - name: Users
+    description: Управление пользователями
+  - name: Locations
+    description: Управление коворкингами
+  - name: Rooms
+    description: Управление помещениями
+  - name: Bookings
+    description: Управление бронированиями
+  - name: Amenities
+    description: Управление удобствами
+
+paths: {}
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
