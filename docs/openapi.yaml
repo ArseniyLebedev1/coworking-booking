@@ -1027,6 +1027,106 @@ paths:
         выполняются на сервере.
       operationId: getRooms
 
+    
+    post:
+      tags:
+        - Rooms
+      summary: Создание помещения
+      description: |
+        Создаёт переговорную комнату или рабочее место
+        в существующем коворкинге.
+        Доступ разрешён только администратору.
+      operationId: createRoom
+
+      security:
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - location_id
+                - name
+                - type
+                - capacity
+              additionalProperties: false
+              properties:
+                location_id:
+                  type: string
+                  format: uuid
+                  description: UUID коворкинга
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  example: Переговорная №1
+                description:
+                  type: string
+                  nullable: true
+                type:
+                  type: string
+                  enum:
+                    - meeting_room
+                    - workspace
+                capacity:
+                  type: integer
+                  minimum: 1
+                  example: 8
+                is_active:
+                  type: boolean
+                  default: true
+                image_url:
+                  type: string
+                  nullable: true
+
+      responses:
+        '201':
+          description: Помещение успешно создано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  location_id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+                  type:
+                    type: string
+                    enum:
+                      - meeting_room
+                      - workspace
+                  capacity:
+                    type: integer
+                  is_active:
+                    type: boolean
+                  image_url:
+                    type: string
+                    nullable: true
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав администратора
+
+        '404':
+          description: Указанный коворкинг не найден
+
+        '422':
+          description: Ошибка валидации данных
+
+
       parameters:
         - name: page
           in: query
