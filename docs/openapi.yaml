@@ -1533,6 +1533,86 @@ paths:
           description: Недостаточно прав доступа
         '422':
           description: Ошибка валидации параметров
+
+          
+  /bookings/{booking_id}:
+    get:
+      tags:
+        - Bookings
+      summary: Получение информации о бронировании
+      description: |
+        Возвращает информацию о бронировании.
+        Сотрудник может просматривать только
+        собственные бронирования.
+        Администратор может просматривать все.
+      operationId: getBookingById
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          description: UUID бронирования
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '200':
+          description: Бронирование найдено
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - user_id
+                  - room_id
+                  - start_time
+                  - end_time
+                  - status
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  user_id:
+                    type: string
+                    format: uuid
+                  room_id:
+                    type: string
+                    format: uuid
+                  start_time:
+                    type: string
+                    format: date-time
+                  end_time:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    enum:
+                      - confirmed
+                      - cancelled
+                  created_at:
+                    type: string
+                    format: date-time
+                  updated_at:
+                    type: string
+                    format: date-time
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав доступа
+
+        '404':
+          description: Бронирование не найдено
+
+        '422':
+          description: Некорректный UUID бронирования
+
 components:
   securitySchemes:
     BearerAuth:
