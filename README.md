@@ -21,3 +21,16 @@
 - Запрет пересекающихся бронирований.
 - Просмотр и отмена своих бронирований.
 - Панель администратора.
+
+## Технологический стек
+
+- Frontend: React, TypeScript, Vite
+- Backend: Python, FastAPI
+- Database: PostgreSQL
+- ORM: SQLAlchemy
+- Database migrations: Alembic
+- API documentation: OpenAPI, Swagger UI
+- Containerization: Docker, Docker Compose
+- CI/CD: GitHub Actions
+- Version control: Git, GitHub
+
