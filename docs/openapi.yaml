@@ -674,6 +674,52 @@ paths:
       operationId: getLocations
 
    
+    delete:
+      tags:
+        - Locations
+      summary: Удаление коворкинга
+      description: |
+        Удаляет коворкинг по его UUID.
+        Доступ разрешён только администратору.
+        Удаление запрещено, если в коворкинге
+        существуют помещения.
+      operationId: deleteLocation
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          description: UUID удаляемого коворкинга
+          schema:
+            type: string
+            format: uuid
+
+      responses:
+        '204':
+          description: Коворкинг успешно удалён
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав администратора
+
+        '404':
+          description: Коворкинг не найден
+
+        '409':
+          description: |
+            Невозможно удалить коворкинг,
+            пока в нём существуют помещения.
+
+        '422':
+          description: Некорректный UUID коворкинга
+
+
+   
     patch:
       tags:
         - Locations
