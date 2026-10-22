@@ -673,6 +673,87 @@ paths:
         Доступен без авторизации.
       operationId: getLocations
 
+   
+    patch:
+      tags:
+        - Locations
+      summary: Редактирование коворкинга
+      description: |
+        Изменяет данные существующего коворкинга.
+        Доступ разрешён только администратору.
+      operationId: updateLocation
+
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          description: UUID коворкинга
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              additionalProperties: false
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                address:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                city:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                description:
+                  type: string
+                  nullable: true
+
+      responses:
+        '200':
+          description: Коворкинг успешно обновлён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  city:
+                    type: string
+                  description:
+                    type: string
+                    nullable: true
+
+        '401':
+          description: Пользователь не авторизован
+
+        '403':
+          description: Недостаточно прав администратора
+
+        '404':
+          description: Коворкинг не найден
+
+        '422':
+          description: Ошибка валидации данных
+
+
       parameters:
         - name: page
           in: query
