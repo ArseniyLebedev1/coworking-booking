@@ -11,6 +11,8 @@ class Settings(BaseSettings):
         "dev_password@localhost:5432/coworking"
     )
 
+    jwt_secret_key: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
