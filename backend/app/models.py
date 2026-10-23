@@ -208,6 +208,13 @@ class Room(Base):
         back_populates="rooms",
     )
 
+    
+    amenities: Mapped[list["Amenity"]] = relationship(
+        secondary="room_amenities",
+        back_populates="rooms",
+    )
+
+
 
 class Booking(Base):
     __tablename__ = "bookings"
@@ -262,5 +269,54 @@ class Booking(Base):
     user: Mapped["User"] = relationship()
 
     room: Mapped["Room"] = relationship()
+
+
+class Amenity(Base):
+    __tablename__ = "amenities"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(100),
+        unique=True,
+        nullable=False,
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=utc_now,
+        nullable=False,
+    )
+
+    rooms: Mapped[list["Room"]] = relationship(
+        secondary="room_amenities",
+        back_populates="amenities",
+    )
+
+
+class RoomAmenity(Base):
+    __tablename__ = "room_amenities"
+
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooms.id"),
+        primary_key=True,
+    )
+
+    amenity_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("amenities.id"),
+        primary_key=True,
+    )
+
 
 
