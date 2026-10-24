@@ -1,9 +1,6 @@
-
 services:
   db:
     image: postgres:16-alpine
-    container_name: coworking_db
-    restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-coworking}
       POSTGRES_USER: ${POSTGRES_USER:-coworking}
@@ -13,34 +10,27 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test:
-        - CMD-SHELL
-        - pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
-      retries: 10
-
-  
-  
+      retries: 15
   backend:
-    build:
-      context: ./backend
-    container_name: coworking_backend
-    restart: unless-stopped
+    build: ./backend
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-coworking}:${POSTGRES_PASSWORD:-dev_password}@db:5432/${POSTGRES_DB:-coworking}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in your environment or .env file}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in your environment or .env}
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
     command: >
-      sh -c "alembic upgrade head &&
-             python -m app.seed &&
-             uvicorn app.main:app --host 0.0.0.0 --port 8000"
-
-
+      sh -c "alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 volumes:
   postgres_data:
-
