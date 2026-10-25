@@ -19,6 +19,9 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-coworking}:${POSTGRES_PASSWORD:-dev_password}@db:5432/${POSTGRES_DB:-coworking}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in your environment or .env}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads_data:/app/uploads
     ports:
       - "8000:8000"
     depends_on:
@@ -34,3 +37,4 @@ services:
       - backend
 volumes:
   postgres_data:
+  uploads_data:
