@@ -7,6 +7,10 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from pathlib import Path
+import os
+from fastapi.staticfiles import StaticFiles
+from app.features import router as features_router
 from app.database import get_db
 from app.dependencies import get_current_user, require_admin
 from app.models import Booking, Location, Role, Room, User
@@ -14,6 +18,10 @@ from app.schemas import BookingIn, BookingOut, LocationIn, LocationOut, LoginIn,
 from app.security import create_access_token, hash_password, verify_password
 
 app = FastAPI(title="Coworking Booking API", version="1.0.0")
+app.include_router(features_router)
+UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", "uploads"))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 @app.get("/health", tags=["Health"])
