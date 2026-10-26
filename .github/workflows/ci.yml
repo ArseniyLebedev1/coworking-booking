@@ -20,6 +20,11 @@ jobs:
         working-directory: backend
       - name: Validate Docker Compose
         run: docker compose config --quiet
+      - name: Validate production Compose
+        env:
+          SITE_DOMAIN: example.org
+          POSTGRES_PASSWORD: ci-postgres-password
+        run: docker compose -f docker-compose.prod.yml config --quiet
   frontend:
     runs-on: ubuntu-latest
     steps:

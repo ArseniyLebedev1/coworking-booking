@@ -34,3 +34,28 @@
 - CI/CD: GitHub Actions
 - Version control: Git, GitHub
 
+
+## Быстрый запуск
+
+```bash
+cp .env.example .env
+# Обязательно задайте уникальный JWT_SECRET_KEY в .env
+docker compose up --build -d
+```
+
+Интерфейс: http://localhost:5173 — API: http://localhost:8000/docs.
+
+## Этапы учебной практики
+
+- Дни 1–2: проектирование, ER-диаграмма, OpenAPI, Figma.
+- Дни 3–5: FastAPI, SQLAlchemy/Alembic, JWT и RBAC, CRUD, React, CI.
+- Дни 6–7: поиск, фильтры, пагинация, фотографии, кабинет, администрирование.
+- Дни 8–9: подготовка production-сборки, проверок, отчёта и материалов защиты.
+
+**Инструкция по публичному развёртыванию:** [docs/deployment.md](docs/deployment.md). Для публичной ссылки нужны VPS и домен — GitHub-репозиторий не является сервером для PostgreSQL/FastAPI.
+
+**Проверка качества:** [docs/test-plan.md](docs/test-plan.md).
+
+**Материалы для сдачи:** [docs/report.md](docs/report.md) и [docs/presentation.md](docs/presentation.md).
+
+Проектная спецификация [docs/openapi.yaml](docs/openapi.yaml) включает также запланированные методы. Актуальный список **реализованных** эндпоинтов — Swagger UI на `/docs`.

@@ -3,7 +3,7 @@ export type Room = { id: string; location_id: string; name: string; description:
 export type User = { id: string; email: string; full_name: string; role: string | null; is_blocked: boolean };
 export type Booking = { id: string; room_id: string; user_id: string; start_time: string; end_time: string; status: string };
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const apiBase = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '/api');
 
 export function getToken(): string | null { return sessionStorage.getItem('token'); }
 export function setToken(value: string | null): void {
