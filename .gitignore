@@ -6,3 +6,7 @@
 node_modules/
 frontend/dist/
 .venv/
+
+.env.production
+.env.production.*
+!.env.production.example
